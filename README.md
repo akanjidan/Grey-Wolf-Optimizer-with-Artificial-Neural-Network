@@ -72,6 +72,9 @@ Implements the GWO algorithm for feature selection.
 ## Example Usage
 
 ### Data Split and Training
+The data split are in 70-30 split which trains on the traditional data. The other split is teh 80-2- split which trains on data that has its feature been engineered. 
+For the 70-30 split, it follows this procedure
+
 ```python
 X = data_all.iloc[:, :-1].values
 y = data_all.iloc[:, -1].values.astype(float)
@@ -86,11 +89,43 @@ feature_importance = {feature: mean_squared_error(y_test, mlp.predict(X_test)) f
 ranked_features = sorted(feature_importance, key=feature_importance.get)
 plotbar(ranked_features, feature_names)
 ```
+For the 80-20 split data, we have:
+1. **Data Loading and Preprocessing**
+   - The dataset is loaded from an Excel file.
+   - `SimpleImputer` is used to handle missing values by replacing them with the mean.
+   - `StandardScaler` is used to normalize the features, although it is commented out in some parts of the code.
+
+2. **80-20 Split**
+   - The dataset is split into training and testing sets using an 80-20 ratio.
+   - Features are selected using the `GWO` (Grey Wolf Optimizer) algorithm.
+   - The importance of each selected feature is evaluated and ranked based on Mean Squared Error (MSE).
+
+3. **Model Training and Evaluation**
+   - An MLPRegressor is trained on the selected features.
+   - Various performance metrics such as MAE, MSE, RMSE, SI, and R-Value are calculated and displayed.
+   - The performance metrics and selected features are appended to a results DataFrame.
+   - Loss and R plots are generated using the `pltloss` and `make_r_plot` functions.
+
+4. **Feature Engineering**
+   - New interaction features are created and added to the dataset.
+     - `Area_Floor_Interaction`
+     - `Log_Total_Area`
+     - `Sqrt_Number_of_Floor`
+     - `Duration_Type_Interaction`
+     - `Location_Access_Interaction`
+   - These new features are added to the dataset, and the feature selection and model evaluation process is repeated.
+   - Results and performance metrics for the engineered features are appended to the results DataFrame.
+
 
 ### Combine Input Variables
+**Combining Features**
 Evaluate model performance by combining different numbers of variables.
+   - The `combine_input_variables` function is used to combine two, three, and four input variables.
+   - The results for these combined inputs are appended to the results DataFrame.
+
 ```python
-pt, mds = combine_input_variables(2, ranked_features1, X1, y1, '70-30 model')
+pt, mds = combine_input_variables(num, ranked_features1, X1, y1, '70-30 model')
+# num >= max(num of input columns) is the number of variables you want to combine
 all_results = pd.concat([all_results, mds], ignore_index=True)
 ```
 
